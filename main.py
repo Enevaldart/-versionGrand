@@ -39,6 +39,7 @@ def Terms_of_service():
 
 @app.route("/convert_pdf", methods=['GET', 'POST'])
 def convert_pdf():
+    #request file through post method
     if request.method == 'POST':
         file = request.files['file']
         if file and allowed_file(file.filename):
@@ -48,20 +49,28 @@ def convert_pdf():
             save_location = os.path.join('uploads', filename)
             save_location = save_location.replace(' ', '_')
             save_location = save_location.replace('\\', '/')
+
+            #renaming of the file to prevent duplicates
             save_location = save_location.replace('.pdf', '_listenToPdf' + timestr + '.pdf')
             file.save(save_location)
 
+            #convert the file in the absolute path specified
             convert(save_location)
 
+            #save the converted file in a directory
             save_location = save_location.replace('pdf', 'mp3')
             save_location = save_location.replace('uploads', 'downloads')
             file_path = save_location
             file_handle = open(file_path, 'r')
             file_handle.close()
 
+            #downloading converted file|s
             try:
                 return send_file(file_path, as_attachment=True)
+
+            #Deleting outdated files
             finally:
+                #delete in the downloads directory
                 folder = 'downloads'
                 for filename in os.listdir(folder):
                     file_path = os.path.join(folder, filename)
@@ -73,6 +82,7 @@ def convert_pdf():
                     except Exception as e:
                         print('failed to delete %s. Reason: %s' % (file_path, e))
                 print('Audio deleted!')
+                #delete in the uploads directory
                 folder2 = 'uploads'
                 for filename in os.listdir(folder2):
                     file_path = os.path.join(folder2, filename)
@@ -85,7 +95,7 @@ def convert_pdf():
                         print('failed to delete %s. Reason: %s' % (file_path, e))
                 print('Pdf deleted!')
 
-
+    #return notification if the file type is wrong
     return render_template('wrongfile.html')
 
 
