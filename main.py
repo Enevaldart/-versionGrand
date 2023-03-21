@@ -22,7 +22,7 @@ def allowed_file(filename):
 
 
 @app.route('/', methods=['GET', 'POST'])
-@cross_origin()
+#@cross_origin()
 def index():
         return render_template('index.html')
 
